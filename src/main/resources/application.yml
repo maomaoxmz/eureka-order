@@ -1,0 +1,47 @@
+server:
+  port: 7003
+
+spring:
+  application:
+    name: eureka-order
+
+#feign客户端配置
+feign:
+  hystrix:
+    #设置feign开启hystrix(服务保护）
+    enabled: true
+
+#hystrix配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            #feign整合hystrix 光设置Hystrix 超时没用的要配合ribbon超时
+            timeoutInMilliseconds: 3000
+      circuitBreaker:
+        #默认20 ，熔断的阈值，如过user服务报错满足3次，熔断器就会打开，就算order之后请求正确的数据也不行。
+        requestVolumeThreshold: 3
+        #默认5S ， 等5S之后熔断器会处于半开状态，然后下一次请求的正确和错误将决定熔断器是否真的关闭和是否继续打开
+        sleepWindowInMilliseconds: 8000
+---
+spring:
+  profiles: dev
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8081/eureka/
+---
+spring:
+  config:
+    activate:
+      on-profile: pro
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8081/eureka/
